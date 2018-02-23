@@ -2,7 +2,7 @@ var game = new Phaser.Game(800, 600, Phaser.AUTO, 'phaser-example', { preload: p
 
 function preload() {
 
-    game.load.tilemap('mario', 'super_mario.json', null, Phaser.Tilemap.TILED_JSON);
+    game.load.tilemap('mario', '/super_mario.json', null, Phaser.Tilemap.TILED_JSON);
     game.load.image('tiles', 'assets/super_mario.png');
     game.load.image('player', 'assets/phaser-dude.png');
 
