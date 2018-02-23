@@ -1,21 +1,54 @@
-var game = new Phaser.Game(800, 600, Phaser.AUTO, 'area', { preload: preload, create: create, update: update });
+var game = new Phaser.Game(800, 600, Phaser.AUTO, 'phaser-example', { preload: preload, create: create, update: update });
 
 function preload() {
 
-    game.load.image('sky', 'assets/sky.png');
-    game.load.image('ground', 'assets/platform.png');
-    game.load.image('star', 'assets/star.png');
-    game.load.spritesheet('dude', 'assets/dude.png', 32, 48);
+    game.load.tilemap('mario', 'super_mario.json', null, Phaser.Tilemap.TILED_JSON);
+    game.load.image('tiles', 'assets/super_mario.png');
+    game.load.image('player', 'assets/phaser-dude.png');
 
 }
 
+var map;
+var layer;
+var p;
+var cursors;
 
 function create() {
 
-    game.add.sprite(0, 0, 'star');
+    game.stage.backgroundColor = '#787878';
 
+    map = game.add.tilemap('mario');
+
+    map.addTilesetImage('SuperMarioBros-World1-1', 'tiles');
+    
+    layer = map.createLayer('World1');
+
+    layer.resizeWorld();
+
+    layer.wrap = true;
+
+    cursors = game.input.keyboard.createCursorKeys();
 
 }
 
 function update() {
+
+    if (cursors.left.isDown)
+    {
+        game.camera.x -= 8;
+    }
+    else if (cursors.right.isDown)
+    {
+        game.camera.x += 8;
+    }
+
+    if (cursors.up.isDown)
+    {
+        game.camera.y -= 8;
+    }
+    else if (cursors.down.isDown)
+    {
+        game.camera.y += 8;
+    }
+
 }
