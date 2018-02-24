@@ -1,10 +1,12 @@
-var game = new Phaser.Game(800, 600, Phaser.AUTO, 'area', { preload: preload, create: create, update: update, collectStar: collectStar});
+var game = new Phaser.Game(800, 600, Phaser.AUTO, 'area', { preload: preload, create: create, update: update});
 
 function preload() {
 
     game.load.image('sky', 'assets/sky.png');
     game.load.image('ground', 'assets/platform.png');
     game.load.image('star', 'assets/star.png');
+    game.load.image('heart', 'assets/heart.png');
+
     game.load.spritesheet('dude', 'assets/dude.png', 32, 48);
 
 }
@@ -15,6 +17,7 @@ var cursors;
 var stars;
 var score = 0;
 var scoreText;
+var heart = 0;
 
 function create() {
 
@@ -84,6 +87,16 @@ function create() {
     }
 
     scoreText = game.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#000' });
+    // life
+    heart = game.add.group();
+
+    for (var i = 0; i < 3; i++)
+    {
+        var local = heart.create(game.world.width - 600 + (50 * i), 30, 'heart');
+        local.anchor.setTo(0.5, 0.5);
+        local.scale.set(0.5);
+
+    }
 }
 
 function update() {
@@ -138,3 +151,6 @@ function collectStar (player, star) {
     scoreText.text = 'Score: ' + score;
 
 }
+
+
+
