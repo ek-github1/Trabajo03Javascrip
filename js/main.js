@@ -1,4 +1,6 @@
-var game = new Phaser.Game(800, 600, Phaser.AUTO, 'area', { preload: preload, create: create, update: update});
+var game = new Phaser.Game(800, 600, Phaser.AUTO, 'area', { preload: preload, create: create, update: update
+//    ,render: render
+});
 
 function preload() {
 
@@ -9,6 +11,8 @@ function preload() {
 
     game.load.spritesheet('dude', 'assets/dude.png', 32, 48);
 
+    game.load.audio('fondoFx','assets/fondoFx.mp3');
+    game.load.audio('coin', 'assets/coin.mp3');
 }
 
 var player;
@@ -17,9 +21,18 @@ var cursors;
 var stars;
 var score = 0;
 var scoreText;
+var gameOver;
 var heart = 0;
+var coin;
+var fondoFx;
 
 function create() {
+    //coins audio
+    coin = game.add.audio('coin');
+
+    //backgroundsound
+    fondoFx = game.add.audio('fondoFx');
+    fondoFx.play();
 
     //  We're going to be using physics, so enable the Arcade Physics system
     game.physics.startSystem(Phaser.Physics.ARCADE);
@@ -57,7 +70,7 @@ function create() {
 
     //  Player physics properties. Give the little guy a slight bounce.
     player.body.bounce.y = 0.2;
-    player.body.gravity.y = 300;
+    player.body.gravity.y = 400;
     player.body.collideWorldBounds = true;
 
     //  Our two animations, walking left and right.
@@ -85,8 +98,13 @@ function create() {
         //  This just gives each star a slightly random bounce value
         star.body.bounce.y = 0.7 + Math.random() * 0.2;
     }
-
+    //Score
     scoreText = game.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#000' });
+
+    //game over
+    gameOver = game.add.text(300, 300, 'GAME OVER', { fontSize: '300px', fill: '#F00' });
+    gameOver.visible = false;
+
     // life
     heart = game.add.group();
 
@@ -100,7 +118,6 @@ function create() {
 }
 
 function update() {
-
     //  Collide the player and the stars with the platforms
     game.physics.arcade.collide(player, platforms);
 
@@ -142,14 +159,29 @@ function update() {
     game.physics.arcade.overlap(player, stars, collectStar, null, this);
 }
 
-function collectStar (player, star) {
+// function render() {
+//     game.debug.soundInfo(fondoFx, 20, 32);
+// }
 
+function collectStar (player, star) {
+    //play audio
+    coin.play();
     // Removes the star from the screen
     star.kill();
     //  Add and update the score
     score += 10;
     scoreText.text = 'Score: ' + score;
 
+    live = heart.getFirstAlive();
+
+    if (live)
+    {
+        live.kill();
+    }
+    if (heart.countLiving() < 1) {
+        player.kill();
+        gameOver.visible = true;
+    }
 }
 
 
