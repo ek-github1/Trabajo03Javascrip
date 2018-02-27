@@ -10,12 +10,15 @@ function preload() {
     game.load.image('heart', 'assets/heart.png');
 
     game.load.spritesheet('dude', 'assets/dude.png', 32, 48);
+    game.load.spritesheet('cat', 'assets/baddie.png', 32, 31);
 
     game.load.audio('fondoFx','assets/fondoFx.mp3');
     game.load.audio('coin', 'assets/coin.mp3');
+    game.load.audio('oh', 'assets/oh.mp3');
 }
 
 var player;
+var cat;
 var platforms;
 var cursors;
 var stars;
@@ -24,11 +27,16 @@ var scoreText;
 var gameOver;
 var heart = 0;
 var coin;
+var oh;
 var fondoFx;
+var walk = 0;
+var col = 0;
 
 function create() {
     //coins audio
     coin = game.add.audio('coin');
+    // rest life
+    oh = game.add.audio('oh');
 
     //backgroundsound
     fondoFx = game.add.audio('fondoFx');
@@ -61,6 +69,15 @@ function create() {
 
     ledge = platforms.create(-150, 250, 'ground');
     ledge.body.immovable = true;
+
+    //enemy cat
+    cat = game.add.sprite(700, game.world.height - 150, 'cat');
+    game.physics.arcade.enable(cat);
+    cat.body.bounce.y = 0.9;
+    cat.body.gravity.y = 300;
+    cat.body.collideWorldBounds = true;
+    cat.animations.add('left', [0, 1], 10, true);
+    cat.animations.add('right', [2, 3], 10, true);
 
     // The player and its settings
     player = game.add.sprite(32, game.world.height - 150, 'dude');
@@ -120,9 +137,38 @@ function create() {
 function update() {
     //  Collide the player and the stars with the platforms
     game.physics.arcade.collide(player, platforms);
+    game.physics.arcade.collide(cat, platforms);
 
     //  Reset the players velocity (movement)
     player.body.velocity.x = 0;
+
+
+    // var tween = game.add.tween(cat).to( { x: 200 }, 2000, Phaser.Easing.Linear.None, true, 0, 1000, true);
+    if (walk == 0){
+    for (var i = 0; i<= 300; i++){
+            cat.body.velocity.x = i;
+            cat.animations.play('right');
+            if(i==300 && cat.body.touching.down){
+                cat.body.velocity.y = -350;
+            }
+            if(cat.body.x > 750){
+                walk = 1;
+            }
+        }
+    }
+    if (walk == 1){
+
+        for (var i = 0; i<= 300; i++){
+            cat.body.velocity.x = -i;
+            cat.animations.play('left');
+            if(i==300 && cat.body.touching.down){
+                cat.body.velocity.y = -350;
+            }
+            if(cat.body.x < 10){
+                walk = 0;
+            }
+        }
+    }
 
     if (cursors.left.isDown)
     {
@@ -157,6 +203,13 @@ function update() {
 
     //  Checks to see if the player overlaps with any of the stars, if he does call the collectStar function
     game.physics.arcade.overlap(player, stars, collectStar, null, this);
+
+    //checks to see if the player overlaps whit the cat (enemy), if he does call the colEnemi function
+    game.physics.arcade.overlap(player, cat, colEnemi, null, this);
+
+    if(col > 0){
+        col--;
+    }
 }
 
 // function render() {
@@ -171,17 +224,25 @@ function collectStar (player, star) {
     //  Add and update the score
     score += 10;
     scoreText.text = 'Score: ' + score;
+    }
 
-    live = heart.getFirstAlive();
+function colEnemi (player, cat) {
 
-    if (live)
-    {
+    if(col == 0){
+        //rest life
+        live = heart.getFirstAlive();
+        //play audio
+        oh.play();
         live.kill();
+        if (heart.countLiving() < 1) {
+            player.kill();
+            // cat.kill();
+            gameOver.visible = true;
+
+        }
+        col = 50;
     }
-    if (heart.countLiving() < 1) {
-        player.kill();
-        gameOver.visible = true;
-    }
+
 }
 
 
